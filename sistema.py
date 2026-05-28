@@ -22,3 +22,27 @@ def empaquetar_paciente(dni, apellido, nombre, telefono, prioridad):
       nombre_b = nombre.encode("utf-8")[:24]
       telefono_b = telefono.encode("utf-8")[:16]
       return struct.pack(FORMATO, dni, apellido_b, nombre_b, telefono_b, prioridad)
+
+
+def desempaquetar_paciente(registro_b):
+      """
+      Desempaqueta un registro de TAM_REGISTRO (en este caso 75 bytes) y decodifica las cadenas, limpiando los bytes nulos de relleno. Retorna un diccionario.
+      
+      Precondicion: registro_b es una objeto bytes de longitud TAM_REGISTRO y sigue la estructura binaria definida en FORMATO.
+      
+      Postcondicion: Devuelve un diccionario con las claves 'dni', 'apellido', 'nombre', 'telefono' y 'prioridad' con los datos decodificados. 
+      """
+      
+      dni, apellido_b, nombre_b, telefono_b, prioridad = struct.unpack(FORMATO, registro_b)
+      
+      apellido = apellido_b.rstrip(b'\x00').decode('utf-8')  # bytes -> str sin relleno
+      nombre = nombre_b.rstrip(b'\x00').decode('utf-8')  # bytes -> str sin relleno
+      telefono = telefono_b.rstrip(b'\x00').decode('utf-8')  # bytes -> str sin relleno
+      
+      return {
+        'dni': dni,
+        'apellido': apellido,
+        'nombre': nombre,
+        'telefono': telefono,
+        'prioridad': prioridad
+      }
