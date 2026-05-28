@@ -55,7 +55,7 @@ def crear_archivo_pacientes(ruta, lista_pacientes):
       
       Precondicion: ruta es un str valido; lista_pacientes es una lista de diccionarios con las claves requeridas para empaquetar_paciente.
       
-      Postcondición: escribe los registros empaquetados en el archivo. Y crea o sobrescribe un archivo.
+      Postcondición: escribe los registros empaquetados en el archivo.
       """
       
       with open(ruta, "wb") as archivo:  # wb lo que hace es crear o sobreescribir
@@ -69,3 +69,17 @@ def crear_archivo_pacientes(ruta, lista_pacientes):
                   )
                   archivo.write(registro)
                   
+
+def leer_paciente(archivo, k):
+      """
+      Lee y devuelve el paciente ubicado en la posicion k-esima del archivo.
+      
+      Precondicion: archivo es un objeto de archivo abierto en modo rb o r+b y k es un indice valido (0<=K<=cant_pacientes)
+      
+      Postcondición: devuelve el diccionario del paciente en la posición k, o None si la posición excede el fin del archivo.
+      """
+      
+      archivo.seek(k * TAM_REGISTRO)
+      registro_b = archivo.read(TAM_REGISTRO)
+      
+      return desempaquetar_paciente(registro_b)
