@@ -1,0 +1,24 @@
+import struct
+import os
+
+# Declaracion de constantes — única fuente de verdad
+
+FORMATO = '<i30s24s16sB'
+TAM_REGISTRO = struct.calcsize(FORMATO)
+
+
+def empaquetar_paciente(dni, apellido, nombre, telefono, prioridad):
+      """
+      Empaqueta los datos de un paciente en bytes, los codifica en UTF-8 y los trunca si es necesario.
+      
+      Precondicion: dni es un int32 valido; apellido, nombre, telefono son strings codificados en utf-8 y prioridad es un int (1 a 3)
+      
+      Postcondicion: Va a devolver un objeto bytes de exactamente TAM_REGISTRO = 75 bytes.
+      """
+      
+      # Codificacion a utf-8 y truncado de cadenas largas
+      
+      apellido_b = apellido.encode("utf-8")[:30]
+      nombre_b = nombre.encode("utf-8")[:24]
+      telefono_b = telefono.encode("utf-8")[:16]
+      return struct.pack(FORMATO, dni, apellido_b, nombre_b, telefono_b, prioridad)
