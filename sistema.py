@@ -6,6 +6,8 @@ import os
 FORMATO = '<i30s24s16sB'
 TAM_REGISTRO = struct.calcsize(FORMATO)
 
+## ================ MODULO 1 ================ ##
+
 
 def empaquetar_paciente(dni, apellido, nombre, telefono, prioridad):
       """
@@ -83,3 +85,38 @@ def leer_paciente(archivo, k):
       registro_b = archivo.read(TAM_REGISTRO)
       
       return desempaquetar_paciente(registro_b)
+
+
+### --- Prueba del Modulo 1 --- ###
+
+# Preparo datos de prueba
+
+pacientes_prueba = [
+      {"dni": 44555333, "apellido": "Perez", "nombre": "Juan Martin", "telefono": "1122334466", "prioridad": 3}, {"dni": 44000222, "apellido": "Appio", "nombre": "Mateo", "telefono": "2364682576", "prioridad": 1}
+      ]
+
+ruta_archivo = "./semana-12/problema-5-gestion-de-turnos/pacientes_test.bin"
+
+
+# Ejcuto la funcion para crear el archivo
+crear_archivo_pacientes(ruta_archivo, pacientes_prueba)
+
+
+# Hago la evaluacion que pide el enunciado
+cantidad_de_pacientes = len(pacientes_prueba)
+tamanio_esperado = cantidad_de_pacientes * TAM_REGISTRO
+tamanio_real = os.path.getsize(ruta_archivo)
+
+# Printeo los valores
+
+print(f"El tamaño esperado del archivo es: {tamanio_esperado} bytes")
+print(f"El tamaño del archivo realmente es: {tamanio_real} bytes")
+
+
+## ================ MODULO 2 ================ ##
+
+
+## ================ MODULO 3 ================ ##
+
+
+## ================ MODULO 4 ================ ##
