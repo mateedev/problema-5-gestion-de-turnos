@@ -115,8 +115,178 @@ print(f"El tamaño del archivo realmente es: {tamanio_real} bytes")
 
 ## ================ MODULO 2 ================ ##
 
+def construir_indices(ruta):
+      """
+      Construye dos diccionarios. Uno tiene como clave los dni y como valor la posición k
+      del paciente en el archivo. El otro tiene como clave los apellidos y como valor el valor k.
+
+      Precondición: ruta es un str valido que apunta al archivo donde estan los pacientes.
+
+      Postcondición: La funcion devuelve los dos diccionarios ya construidos con cada uno de los pacientes. 
+      
+      """
+
+      indice_por_dni = {}
+      indice_por_apellido = {}    # Definó ambos diccionarios vacíos. 
+
+      with open(ruta, "r") as archivo:
+            for paciente in archivo:    # Recorro el archivo paciente por paciente y agrego la información a los diccionarios. 
+                  dni, apellido = paciente.strip().split(",")
+                  bite_actual = archivo.tell()
+                  k = bite_actual // TAM_REGISTRO
+                  indice_por_dni[dni] = k
+                  if apellido not in indice_por_apellido:
+                        indice_por_apellido[apellido] = []
+                  indice_por_apellido[apellido].append(k)
+      return indice_por_dni, indice_por_apellido
+
+def buscar_por_dni(dni, indice_por_dni, ruta):
+      """
+      Esta función busca el paciente por el dni utilizando el diccionario creado anteriormente, de este modo disminute
+      el tiempo de búsqueda. 
+
+      Precondición: El diccionario indice_por_dni debe haber sido construido previamente con la función construir_indices 
+      y ruta debe ser un str válido que apunta al archivo de pacientes. 
+
+      Postcondición: Devuelve toda la información del paciente como un string. Si no se encuentra, devuelve
+      None. 
+      """
+      if dni in indice_por_dni:
+            k = indice_por_dni[dni]
+            with open(ruta, "r") as archivo:
+                  archivo.seek(k * TAM_REGISTRO)
+            paciente = archivo.readline().strip()
+            return paciente
+      return None
+
+
+### --- Prueba del Modulo 2 --- ###
+
+# Los pacientes_prueba y ruta_archivo son los mismos que en el modulo 1, agrego otros datos. 
+
+dni_a_buscar = 44000222
+
+# Ejcuto la función para construir los índices
+
+indice_por_dni, indice_por_apellido = construir_indices(ruta_archivo)
+
+# Busco un paciente por dni utilizando la funcion buscar_por_dni
+paciente = buscar_por_dni(dni_a_buscar, indice_por_dni, ruta_archivo)
+"""
+Si coparamos este método de búsqueda con el metodo secuencial de búsqueda, encontreamos que el gracias a
+esta función solo tenemos que ver buscar la key en el diccionario, el cual es el dni, y luego ir a la posición
+k en el archivo. Por otro lado, si utilizamos la otra manera, debemos iterar varias veces el archivo hasta 
+encontrar el paciente, lo cual es menos eficiente. 
+"""
+
+# Printeo los resultados
+print(f"El paciente con DNI {dni_a_buscar} es: {paciente}")
+print(f"Los diccionarios son los siguientes: {indice_por_dni} y {indice_por_apellido}")
 
 ## ================ MODULO 3 ================ ##
 
+
+def listar_pacientes_ordenados(ruta, criterio):
+      """
+      La funcion se encarga de listar todos los pacientes de manera ordenada, para ello utiliza la función 
+      merge_sort definida luego. 
+
+      Precondición: ruta es un str válido que apunta al archivo de pacientes. 
+      Criterio es un str que puede ser "apellido" o "prioridad".
+
+      Postcondición: Devuelve una lista de pacientes ordenados según el criterio especificado.
+      """
+      pacientes = []
+    
+      # Leemos el archivo y armamos una lista de diccionarios
+      with open(ruta, mode='r', encoding='utf-8') as archivo:
+          for fila in archivo:
+              paciente = {
+                  "dni": fila[0],
+                  "apellido": fila[1],
+                  "nombre": fila[2],
+                  "telefono": fila[3],
+                  "prioridad": fila[4]
+              }
+              pacientes.append(paciente)
+
+      # Lógica de ordenamiento según el criterio
+      if criterio == "apellido":
+          # Orden simple: solo pasamos la clave 'apellido'
+          return merge_sort(pacientes, clave=lambda p: p["apellido"])
+        
+      elif criterio == "prioridad":
+          # ESTRATEGIA DE DOS PASADAS (aprovechando la estabilidad)
+        
+          # 1ra pasada: Ordenamos por el criterio de desempate (Apellido)
+          pacientes_por_apellido = merge_sort(pacientes, clave=lambda p: p["apellido"])
+        
+          # 2da pasada: Ordenamos por el criterio principal (Prioridad)
+          pacientes_final = merge_sort(pacientes_por_apellido, clave=lambda p: p["prioridad"])
+        
+          return pacientes_final
+        
+
+def merge_sort(lista):
+      """
+      Funcion de ordenamiento eficiente, vista en la semana 6.
+      """
+      if len(lista) <= 1:
+            return lista
+
+      medio = len(lista) // 2
+      izquierda = lista[:medio]
+      derecha = lista[medio:]
+
+
+      izquierda_ordenada = merge_sort(izquierda)
+      derecha_ordenada = merge_sort(derecha)
+
+
+      return merge(izquierda_ordenada, derecha_ordenada)
+
+
+def merge(izquierda, derecha):
+      """
+      Función auxiliar para merge_sort, también vista en la semana 6.
+      """
+
+      resultado = []
+      i = 0  # Índice para recorrer la lista 'izquierda'
+      j = 0  # Índice para recorrer la lista 'derecha'
+
+      #
+      while i < len(izquierda) and j < len(derecha):
+            if izquierda[i] <= derecha[j]:
+                  resultado.append(izquierda[i])
+                  i += 1  
+            else:
+                  resultado.append(derecha[j])
+                  j += 1  
+
+      resultado.extend(izquierda[i:])
+      resultado.extend(derecha[j:])
+
+      return resultado
+
+### --- Prueba del Modulo 3 --- ###
+
+#Los datos son los mismos que en los modulos anteriores. 
+
+# Ejcuto la función para listar los pacientes ordenados por apellido
+pacientes_ordenados_apellido = listar_pacientes_ordenados(ruta_archivo, "apellido")
+pacientes_ordenados_prioridad = listar_pacientes_ordenados(ruta_archivo, "prioridad")
+
+# Printeo los resultados
+print(f"Los pacientes ordenados por apellido son: {pacientes_ordenados_apellido}")
+print(f"Los pacientes ordenados por prioridad son: {pacientes_ordenados_prioridad}")
+
+#Justificacion de la estabilidad de la funcion.
+"""
+La función es estable, ya que en la primera pasada ordenamos el archivo según los apellidos de los pacientes, 
+y luego, en la segunda pasada, ordenamos por prioridad. Esto es importante, ya que si no fuese así, cuando
+se ordene por prioridad, solo sería ordenado por prioridad y no también por apellido. Por eso, se divide en 
+pasadas para aprovechar la estabilidad del algoritmo de ordenamiento.
+"""
 
 ## ================ MODULO 4 ================ ##
