@@ -290,3 +290,249 @@ pasadas para aprovechar la estabilidad del algoritmo de ordenamiento.
 """
 
 ## ================ MODULO 4 ================ ##
+
+def asignar_agenda(pacientes_del_dia, franjas, disponibilidad):
+      """
+      Asigna pacientes a franjas horarias utilizando backtracking.
+
+      Precondicion: pacientes_del_dia es una lista de pacientes, franjas es una lista
+      de franjas horarias y disponibilidad es un diccionario que asocia cada paciente
+      con las franjas en las que puede asistir.
+
+      Postcondicion: Devuelve un diccionario paciente -> franja con una asignación
+      válida o None si no existe ninguna solucion
+      """
+
+      asignacion = {}
+
+      def backtracking(indice):
+
+            if indice == len(pacientes_del_dia):
+                  return True
+
+            paciente = pacientes_del_dia[indice]
+
+            for franja in franjas:
+
+                  # Poda: la franja ya está ocupada
+                  if franja in asignacion.values():
+                        continue
+
+                  # Poda: la franja no está disponible para el paciente
+                  if franja not in disponibilidad[paciente]:
+                        continue
+
+                  asignacion[paciente] = franja
+
+                  if backtracking(indice + 1):
+                        return True
+
+                  del asignacion[paciente]
+
+            return False
+
+      if backtracking(0):
+            return asignacion
+
+      return None
+
+
+### --- Prueba del Modulo 4 --- ###
+
+# Caso con solucion
+
+pacientes_del_dia = ["Juan", "Mateo", "Ana"]
+
+franjas = ["08:00", "08:30", "09:00"]
+
+disponibilidad = {
+      "Juan": ["08:00", "08:30"],
+      "Mateo": ["08:30", "09:00"],
+      "Ana": ["09:00"]
+}
+
+agenda = asignar_agenda(
+      pacientes_del_dia,
+      franjas,
+      disponibilidad
+)
+
+print("Caso con solucion:")
+print(agenda)
+
+"""
+Verificación manual:
+
+La asignacion obtenida fue:
+
+{'Juan': '08:00', 'Mateo': '08:30', 'Ana': '09:00'}
+
+Disponibilidad:
+- Juan puede asistir a 08:00 o 08:30, por lo tanto cumple.
+- Mateo puede asistir a 08:30 o 09:00, por lo tanto cumple.
+- Ana puede asistir a 09:00, por lo tanto cumple.
+
+Unicidad de franjas:
+- 08:00 aparece una sola vez.
+- 08:30 aparece una sola vez.
+- 09:00 aparece una sola vez.
+
+Por lo tanto, la asignacion respeta todas las restricciones.
+"""
+
+
+# Caso sin solucion
+
+pacientes_del_dia_2 = ["Juan", "Mateo", "Ana"]
+
+franjas_2 = ["08:00", "08:30"]
+
+disponibilidad_2 = {
+      "Juan": ["08:00"],
+      "Mateo": ["08:00"],
+      "Ana": ["08:00"]
+}
+
+agenda_sin_solucion = asignar_agenda(
+      pacientes_del_dia_2,
+      franjas_2,
+      disponibilidad_2
+)
+
+print("Caso sin solucion:")
+print(agenda_sin_solucion)
+
+"""
+Como los tres pacientes solamente pueden asistir a la franja 08:00
+y una franja puede recibir a lo sumo un paciente, no existe ninguna
+asignacion valida.
+
+Por lo tanto, la función devuelve None.
+"""
+
+
+# Discusión
+
+"""
+En el caso con solucion hay 3 pacientes y 3 franjas.
+
+Si utilizamos fuerza bruta, cada paciente podría intentar ubicarse
+en cualquiera de las 3 franjas, por lo que habría hasta 3³ = 27
+asignaciones posibles para revisar.
+
+El algoritmo de backtracking evita revisar muchas de ellas gracias
+a las podas. Cuando una franja ya está ocupada o cuando una franja
+no pertenece a la disponibilidad del paciente, esa rama se descarta
+inmediatamente.
+
+Por lo tanto, se exploran menos estados que en una busqueda por
+fuerza bruta, ya que muchas combinaciones invalidas nunca llegan a
+completarse.
+"""
+
+## ================ PROGRAMA PRINCIPAL ================ ##
+
+def main():
+      """
+      Coordina los cuatro modulos del sistema.
+
+      Precondicion: Las funciones de los modulos 1, 2, 3 y 4 deben estar definidas.
+
+      Postcondicion: Permite crear el archivo, construir indices,
+      realizar consultas y resolver la agenda del dia.
+      """
+
+      pacientes = [
+            {
+                  "dni": 44555333,
+                  "apellido": "Saliani",
+                  "nombre": "Pedro",
+                  "telefono": "1122334466",
+                  "prioridad": 3
+            },
+            {
+                  "dni": 44000222,
+                  "apellido": "Appio",
+                  "nombre": "Mateo",
+                  "telefono": "2364682576",
+                  "prioridad": 1
+            }
+      ]
+
+      ruta = "./semana-12/problema-5-gestion-de-turnos/pacientes.bin"
+
+      # Modulo 1
+      crear_archivo_pacientes(ruta, pacientes)
+
+      # Modulo 2
+      indice_por_dni, indice_por_apellido = construir_indices(ruta)
+
+      opcion = ""
+
+      while opcion != "4":
+
+            print("\n=== MENU ===")
+            print("1. Buscar paciente por DNI")
+            print("2. Listar pacientes por apellido")
+            print("3. Listar pacientes por prioridad")
+            print("4. Resolver agenda del dia y salir")
+
+            opcion = input("Seleccione una opcion: ")
+
+            if opcion == "1":
+
+                  dni = int(input("Ingrese DNI: "))
+
+                  paciente = buscar_por_dni(
+                        dni,
+                        indice_por_dni,
+                        ruta
+                  )
+
+                  print(paciente)
+
+            elif opcion == "2":
+
+                  pacientes_ordenados = listar_pacientes_ordenados(
+                        ruta,
+                        "apellido"
+                  )
+
+                  print(pacientes_ordenados)
+
+            elif opcion == "3":
+
+                  pacientes_ordenados = listar_pacientes_ordenados(
+                        ruta,
+                        "prioridad"
+                  )
+
+                  print(pacientes_ordenados)
+
+            elif opcion == "4":
+
+                  pacientes_del_dia = ["Pedro", "Mateo", "Ana"]
+
+                  franjas = ["08:00", "08:30", "09:00"]
+
+                  disponibilidad = {
+                        "Pedro": ["08:00", "08:30"],
+                        "Mateo": ["08:30", "09:00"],
+                        "Ana": ["09:00"]
+                  }
+
+                  agenda = asignar_agenda(
+                        pacientes_del_dia,
+                        franjas,
+                        disponibilidad
+                  )
+
+                  print("Agenda del dia:")
+                  print(agenda)
+
+            else:
+                  print("Opcion invalida")
+
+
+if __name__ == "__main__":
+      main()
