@@ -131,15 +131,31 @@ def construir_indices(ruta):
       indice_por_dni = {}
       indice_por_apellido = {}    # Definó ambos diccionarios vacíos. 
 
-      with open(ruta, "r") as archivo:
-            for paciente in archivo:    # Recorro el archivo paciente por paciente y agrego la información a los diccionarios. 
-                  dni, apellido = paciente.strip().split(",")
-                  bite_actual = archivo.tell()
-                  k = bite_actual // TAM_REGISTRO
+      with open(ruta, "rb") as archivo:
+            k = 0  # Llevamos la cuenta de la posición del registro
+            
+            registro_binario = archivo.read(TAM_REGISTRO) # Lee exactamente los bytes que pesa un paciente
+                  
+            # Iteramos mientras el registro tenga datos (condición de fin de archivo)
+            while registro_binario and len(registro_binario) == TAM_REGISTRO:
+            
+                  # Usamos la función del Módulo 1 para traducir los bytes
+                  paciente = desempaquetar_paciente(registro_binario)
+
+                  dni = paciente['dni']
+                  apellido = paciente['apellido']
+
+                  # Agrego la información a los diccionarios usando 'k'
                   indice_por_dni[dni] = k
+
                   if apellido not in indice_por_apellido:
-                        indice_por_apellido[apellido] = []
+                      indice_por_apellido[apellido] = []
                   indice_por_apellido[apellido].append(k)
+
+                  # Avanza al siguiente paciente
+                  k += 1
+                  registro_binario = archivo.read(TAM_REGISTRO)
+                  
       return indice_por_dni, indice_por_apellido
 
 def buscar_por_dni(dni, indice_por_dni, ruta):
@@ -154,10 +170,18 @@ def buscar_por_dni(dni, indice_por_dni, ruta):
       None. 
       """
       if dni in indice_por_dni:
-            k = indice_por_dni[dni]
-            with open(ruta, "r") as archivo:
-                  archivo.seek(k * TAM_REGISTRO)
-            paciente = archivo.readline().strip()
+        k = indice_por_dni[dni]
+      
+      with open(ruta, "rb") as archivo:
+            # Salta a la posición exacta (offset) calculada
+            archivo.seek(k * TAM_REGISTRO)
+            
+            # Lee los bytes exactos que pesa un registro
+            registro_binario = archivo.read(TAM_REGISTRO)
+            
+            # Traduce los bytes a un diccionario comprensible
+            paciente = desempaquetar_paciente(registro_binario)
+            
             return paciente
       return None
 
