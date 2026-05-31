@@ -228,16 +228,13 @@ def listar_pacientes_ordenados(ruta, criterio):
       pacientes = []
     
       # Leemos el archivo y armamos una lista de diccionarios
-      with open(ruta, mode='r', encoding='utf-8') as archivo:
-          for fila in archivo:
-              paciente = {
-                  "dni": fila[0],
-                  "apellido": fila[1],
-                  "nombre": fila[2],
-                  "telefono": fila[3],
-                  "prioridad": fila[4]
-              }
-              pacientes.append(paciente)
+      with open(ruta, "rb") as archivo:
+            registro_binario = archivo.read(TAM_REGISTRO)
+            
+            while registro_binario and len(registro_binario) == TAM_REGISTRO:
+                  paciente = desempaquetar_paciente(registro_binario)
+                  pacientes.append(paciente)
+                  registro_binario = archivo.read(TAM_REGISTRO)
 
       # Lógica de ordenamiento según el criterio
       if criterio == "apellido":
@@ -256,26 +253,26 @@ def listar_pacientes_ordenados(ruta, criterio):
           return pacientes_final
         
 
-def merge_sort(lista):
+def merge_sort(lista, clave):
       """
       Funcion de ordenamiento eficiente, vista en la semana 6.
       """
       if len(lista) <= 1:
             return lista
 
-      medio = len(lista) // 2
+      medio = len(lista) >> 1 # Es el equivalente a len(lista) // 2 pero mas eficiente
       izquierda = lista[:medio]
       derecha = lista[medio:]
 
 
-      izquierda_ordenada = merge_sort(izquierda)
-      derecha_ordenada = merge_sort(derecha)
+      izquierda_ordenada = merge_sort(izquierda, clave)
+      derecha_ordenada = merge_sort(derecha, clave)
 
 
-      return merge(izquierda_ordenada, derecha_ordenada)
+      return merge(izquierda_ordenada, derecha_ordenada, clave)
 
 
-def merge(izquierda, derecha):
+def merge(izquierda, derecha, clave):
       """
       Función auxiliar para merge_sort, también vista en la semana 6.
       """
@@ -286,7 +283,7 @@ def merge(izquierda, derecha):
 
       #
       while i < len(izquierda) and j < len(derecha):
-            if izquierda[i] <= derecha[j]:
+            if clave(izquierda[i]) <= clave(derecha[j]):
                   resultado.append(izquierda[i])
                   i += 1  
             else:
