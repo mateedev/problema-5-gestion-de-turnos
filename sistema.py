@@ -86,6 +86,7 @@ def leer_paciente(archivo, k):
       
       return desempaquetar_paciente(registro_b)
 
+"""
 
 ### --- Prueba del Modulo 1 --- ###
 
@@ -112,6 +113,7 @@ tamanio_real = os.path.getsize(ruta_archivo)
 print(f"El tamaño esperado del archivo es: {tamanio_esperado} bytes")
 print(f"El tamaño del archivo realmente es: {tamanio_real} bytes")
 
+"""
 
 ## ================ MODULO 2 ================ ##
 
@@ -159,6 +161,8 @@ def buscar_por_dni(dni, indice_por_dni, ruta):
             return paciente
       return None
 
+"""
+
 
 ### --- Prueba del Modulo 2 --- ###
 
@@ -172,17 +176,18 @@ indice_por_dni, indice_por_apellido = construir_indices(ruta_archivo)
 
 # Busco un paciente por dni utilizando la funcion buscar_por_dni
 paciente = buscar_por_dni(dni_a_buscar, indice_por_dni, ruta_archivo)
-"""
+
 Si coparamos este método de búsqueda con el metodo secuencial de búsqueda, encontreamos que el gracias a
 esta función solo tenemos que ver buscar la key en el diccionario, el cual es el dni, y luego ir a la posición
 k en el archivo. Por otro lado, si utilizamos la otra manera, debemos iterar varias veces el archivo hasta 
 encontrar el paciente, lo cual es menos eficiente. 
-"""
+
 
 # Printeo los resultados
 print(f"El paciente con DNI {dni_a_buscar} es: {paciente}")
 print(f"Los diccionarios son los siguientes: {indice_por_dni} y {indice_por_apellido}")
 
+"""
 ## ================ MODULO 3 ================ ##
 
 
@@ -269,7 +274,10 @@ def merge(izquierda, derecha):
 
       return resultado
 
+"""
+
 ### --- Prueba del Modulo 3 --- ###
+
 
 #Los datos son los mismos que en los modulos anteriores. 
 
@@ -282,11 +290,12 @@ print(f"Los pacientes ordenados por apellido son: {pacientes_ordenados_apellido}
 print(f"Los pacientes ordenados por prioridad son: {pacientes_ordenados_prioridad}")
 
 #Justificacion de la estabilidad de la funcion.
-"""
+
 La función es estable, ya que en la primera pasada ordenamos el archivo según los apellidos de los pacientes, 
 y luego, en la segunda pasada, ordenamos por prioridad. Esto es importante, ya que si no fuese así, cuando
 se ordene por prioridad, solo sería ordenado por prioridad y no también por apellido. Por eso, se divide en 
 pasadas para aprovechar la estabilidad del algoritmo de ordenamiento.
+
 """
 
 ## ================ MODULO 4 ================ ##
@@ -337,6 +346,8 @@ def asignar_agenda(pacientes_del_dia, franjas, disponibilidad):
       return None
 
 
+"""
+
 ### --- Prueba del Modulo 4 --- ###
 
 # Caso con solucion
@@ -360,7 +371,7 @@ agenda = asignar_agenda(
 print("Caso con solucion:")
 print(agenda)
 
-"""
+
 Verificación manual:
 
 La asignacion obtenida fue:
@@ -378,7 +389,7 @@ Unicidad de franjas:
 - 09:00 aparece una sola vez.
 
 Por lo tanto, la asignacion respeta todas las restricciones.
-"""
+
 
 
 # Caso sin solucion
@@ -402,18 +413,18 @@ agenda_sin_solucion = asignar_agenda(
 print("Caso sin solucion:")
 print(agenda_sin_solucion)
 
-"""
+
 Como los tres pacientes solamente pueden asistir a la franja 08:00
 y una franja puede recibir a lo sumo un paciente, no existe ninguna
 asignacion valida.
 
 Por lo tanto, la función devuelve None.
-"""
+
 
 
 # Discusión
 
-"""
+
 En el caso con solucion hay 3 pacientes y 3 franjas.
 
 Si utilizamos fuerza bruta, cada paciente podría intentar ubicarse
@@ -428,6 +439,7 @@ inmediatamente.
 Por lo tanto, se exploran menos estados que en una busqueda por
 fuerza bruta, ya que muchas combinaciones invalidas nunca llegan a
 completarse.
+
 """
 
 ## ================ PROGRAMA PRINCIPAL ================ ##
@@ -459,7 +471,7 @@ def main():
             }
       ]
 
-      ruta = "./semana-12/problema-5-gestion-de-turnos/pacientes.bin"
+      ruta = "pacientes.bin"
 
       # Modulo 1
       crear_archivo_pacientes(ruta, pacientes)
